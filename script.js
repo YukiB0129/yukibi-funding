@@ -1882,7 +1882,7 @@ gapText: `尚需 ${formatCurrency(goal.amount - raised)}`
             }
 
             if (result.success !== true) {
-                throw new Error('Submit failed');
+                throw new Error(result.message || 'Submit failed');
             }
 
             if (requireArchiveId) {
@@ -2721,8 +2721,12 @@ gapText: `尚需 ${formatCurrency(goal.amount - raised)}`
                 closeModal(false);
                 showSuccessView(result.archiveId, totalAmount, planName);
                 resetContractForm();
-            } catch {
-                showModalSubmitError('封印契約建立失敗，請稍後再試或聯絡主辦方。');
+            } catch (error) {
+                console.error('建立訂單失敗：', error);
+            
+                showModalSubmitError(
+                    `封印契約建立失敗：${error?.message || '未知錯誤'}`
+                );
             } finally {
                 isSubmitting = false;
                 setModalConfirmState(false);
