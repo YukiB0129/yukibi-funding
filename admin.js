@@ -120,88 +120,201 @@
 
     function normalizeOrder(order) {
         return {
-            archiveId:
-                String(order?.archiveId || '').trim(),
-
-            planName:
-                String(order?.planName || '').trim(),
-
-            publicName:
-                String(order?.publicName || '').trim(),
-
-            totalAmount:
-                order?.totalAmount ?? '',
-
-            paymentStatus:
-                String(
-                    order?.paymentStatus || '待匯款'
-                ).trim() || '待匯款',
-
-            shippingStatus:
-                String(
-                    order?.shippingStatus || '尚未處理'
-                ).trim() || '尚未處理',
-
-            planPrice:
-                order?.planPrice ??
-                order?.totalAmount ??
+            createdAt:
+                order?.createdAt ||
+                order?.['建立時間'] ||
                 '',
-
-            realName:
-                String(order?.realName || '').trim(),
-
-            email:
-                String(order?.email || '').trim(),
-
-            phone:
-                String(order?.phone || '').trim(),
-
-            instagram:
-                String(order?.instagram || '').trim(),
-
-            shippingMethod:
+    
+            archiveId:
                 String(
-                    order?.shippingMethod || ''
-                ).trim(),
-
-            recipientName:
-                String(
-                    order?.recipientName || ''
-                ).trim(),
-
-            recipientPhone:
-                String(
-                    order?.recipientPhone || ''
-                ).trim(),
-
-            shippingInfo:
-                String(
-                    order?.shippingInfo ||
-                    order?.shippingInformation ||
+                    order?.archiveId ||
+                    order?.['館藏編號'] ||
                     ''
                 ).trim(),
-
-            transferDate:
+    
+            planName:
                 String(
-                    order?.transferDate || ''
+                    order?.planName ||
+                    order?.['方案名稱'] ||
+                    ''
                 ).trim(),
-
-            transferAmount:
-                order?.transferAmount ?? '',
-
-            transferLastFive:
+    
+            planPrice:
+                order?.planPrice ??
+                order?.['方案金額'] ??
+                '',
+    
+            totalAmount:
+                order?.totalAmount ??
+                order?.['總金額'] ??
+                order?.planPrice ??
+                order?.['方案金額'] ??
+                '',
+    
+            realName:
                 String(
-                    order?.transferLastFive || ''
+                    order?.realName ||
+                    order?.['真實姓名'] ||
+                    ''
                 ).trim(),
-
+    
+            email:
+                String(
+                    order?.email ||
+                    order?.['Email'] ||
+                    ''
+                ).trim(),
+    
+            phone:
+                String(
+                    order?.phone ||
+                    order?.['手機號碼'] ||
+                    ''
+                ).trim(),
+    
+            instagram:
+                String(
+                    order?.instagram ||
+                    order?.['Instagram'] ||
+                    ''
+                ).trim(),
+    
+            publicName:
+                String(
+                    order?.publicName ||
+                    order?.['公開署名'] ||
+                    ''
+                ).trim(),
+    
+            shippingMethod:
+                String(
+                    order?.shippingMethod ||
+                    order?.['寄送方式'] ||
+                    ''
+                ).trim(),
+    
+            recipientName:
+                String(
+                    order?.recipientName ||
+                    order?.['收件人姓名'] ||
+                    ''
+                ).trim(),
+    
+            recipientPhone:
+                String(
+                    order?.recipientPhone ||
+                    order?.['收件人電話'] ||
+                    ''
+                ).trim(),
+    
+            storeName:
+                String(
+                    order?.storeName ||
+                    order?.['7-ELEVEN 門市名稱'] ||
+                    ''
+                ).trim(),
+    
+            storeCode:
+                String(
+                    order?.storeCode ||
+                    order?.['7-ELEVEN 門市店號'] ||
+                    ''
+                ).trim(),
+    
+            storeAddress:
+                String(
+                    order?.storeAddress ||
+                    order?.['7-ELEVEN 門市地址'] ||
+                    ''
+                ).trim(),
+    
+            postalCode:
+                String(
+                    order?.postalCode ||
+                    order?.['郵遞區號'] ||
+                    ''
+                ).trim(),
+    
+            city:
+                String(
+                    order?.city ||
+                    order?.['縣市'] ||
+                    ''
+                ).trim(),
+    
+            district:
+                String(
+                    order?.district ||
+                    order?.['區域'] ||
+                    ''
+                ).trim(),
+    
+            address:
+                String(
+                    order?.address ||
+                    order?.['地址'] ||
+                    ''
+                ).trim(),
+    
+            note:
+                String(
+                    order?.note ||
+                    order?.['備註'] ||
+                    ''
+                ).trim(),
+    
+            paymentStatus:
+                String(
+                    order?.paymentStatus ||
+                    order?.['付款狀態'] ||
+                    '待匯款'
+                ).trim(),
+    
+            paymentDate:
+                String(
+                    order?.paymentDate ||
+                    order?.['匯款日期'] ||
+                    ''
+                ).trim(),
+    
+            paymentAmount:
+                order?.paymentAmount ??
+                order?.['匯款金額'] ??
+                '',
+    
+            bankLast5:
+                String(
+                    order?.bankLast5 ||
+                    order?.['末五碼'] ||
+                    ''
+                ).trim(),
+    
+            paymentNote:
+                String(
+                    order?.paymentNote ||
+                    order?.['付款備註'] ||
+                    ''
+                ).trim(),
+    
+            shippingStatus:
+                String(
+                    order?.shippingStatus ||
+                    order?.['寄送狀態'] ||
+                    '尚未處理'
+                ).trim(),
+    
             trackingNumber:
                 String(
-                    order?.trackingNumber || ''
+                    order?.trackingNumber ||
+                    order?.['物流編號'] ||
+                    ''
                 ).trim(),
-
+    
             adminNote:
                 String(
-                    order?.adminNote || ''
+                    order?.adminNote ||
+                    order?.['管理備註'] ||
+                    ''
                 ).trim()
         };
     }

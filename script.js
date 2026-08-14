@@ -603,15 +603,18 @@
             );
     
             const result = await response.json();
-    
+            console.log('募資 API 回傳：', result);
             if (!result.success) {
                 throw new Error(result.message || '無法取得募資進度');
             }
     
             FUNDING_DATA.raised = Number(result.raised) || 0;
             FUNDING_DATA.supporters = Number(result.supporters) || 0;
-    
+            
+            progressAnimated = false;
             initProgressBar();
+            initSealedGoals();
+            initScrollReveal();Ｇ
         } catch (error) {
             console.error('載入募資進度失敗：', error);
             initProgressBar();
@@ -630,11 +633,26 @@
             progressFill.style.setProperty('--progress-percent', `${percent}%`);
             progressFill.classList.add('animated');
             progressPercent.textContent = `${percent}%`;
-            if (progressPercentDisplay) progressPercentDisplay.textContent = `${percent}%`;
+        
+            if (progressPercentDisplay) {
+                progressPercentDisplay.textContent = `${percent}%`;
+            }
+        
             raisedAmount.textContent = formatCurrency(FUNDING_DATA.raised);
             supporterCount.textContent = FUNDING_DATA.supporters;
-            if (heroDaysLeft) heroDaysLeft.textContent = remainingDays || FUNDING_DATA.heroDaysLeft;
-            progressBar?.setAttribute('aria-valuenow', String(percent));
+        
+            if (heroDaysLeft) {
+                heroDaysLeft.textContent =
+                    remainingDays || FUNDING_DATA.heroDaysLeft;
+            }
+        
+            progressBar?.setAttribute(
+                'aria-valuenow',
+                String(percent)
+            );
+        } else {
+            runProgressAnimation();
+        
         }
     }
 
