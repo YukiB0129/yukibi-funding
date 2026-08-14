@@ -6,10 +6,12 @@
 (function () {
     'use strict';
 
+    const FUNDING_API_URL = 'https://script.google.com/macros/s/AKfycbylLQXE0NMkIaoDWybMwcb4Rz75z5nvOaXDpLjfCpdnJv_4_JO19ofe_moFbuic7yw4PA/exec';
+
     const FUNDING_DATA = {
-        raised: 86400,
+        raised: 0,
         goal: 250000,
-        supporters: 87,
+        supporters: 0,
         heroDaysLeft: 50,
         endDate: '2026-08-30T23:59:59+08:00'
     };
@@ -594,6 +596,27 @@
         }
     }
 
+    async function loadFundingProgress() {
+        try {
+            const response = await fetch(
+                `${FUNDING_API_URL}?action=fundingProgress`
+            );
+    
+            const result = await response.json();
+    
+            if (!result.success) {
+                throw new Error(result.message || '無法取得募資進度');
+            }
+    
+            FUNDING_DATA.raised = Number(result.raised) || 0;
+            FUNDING_DATA.supporters = Number(result.supporters) || 0;
+    
+            initProgressBar();
+        } catch (error) {
+            console.error('載入募資進度失敗：', error);
+            initProgressBar();
+        }
+    }
     function initProgressBar() {
         const percent = Math.round((FUNDING_DATA.raised / FUNDING_DATA.goal) * 100);
         const endDate = new Date(FUNDING_DATA.endDate);
@@ -3137,7 +3160,7 @@ gapText: `尚需 ${formatCurrency(goal.amount - raised)}`
         initArchiveSearch();
         initSupportForm();
         initScrollReveal();
-        initProgressBar();
+        loadFundingProgress();
         initCountdown();
         initScrollHint();
         initButtonEffect();
