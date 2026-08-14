@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forbidden Library — 管理後台</title>
+    <meta name="description" content="Forbidden Library 管理後台">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@300;400;600;700&family=Marcellus&family=Noto+Serif+JP:wght@300;400;600&family=Noto+Serif+TC:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body class="admin-page">
+    <div class="admin-shell">
+        <header class="admin-header">
+            <p class="admin-header__brand">Forbidden Library</p>
+            <h1 class="admin-header__title">管理後台</h1>
+            <p class="admin-header__subtitle">ADMIN PANEL</p>
+        </header>
+
+        <section class="admin-stats" aria-label="訂單統計">
+            <button type="button" class="admin-stat-card" data-filter="待匯款">
+                <span class="admin-stat-card__label">等待獻金</span>
+                <span class="admin-stat-card__value" id="admin-stat-awaiting-payment">0</span>
+            </button>
+
+            <button type="button" class="admin-stat-card" data-filter="待確認">
+                <span class="admin-stat-card__label">館長審核</span>
+                <span class="admin-stat-card__value" id="admin-stat-pending-review">0</span>
+            </button>
+
+            <button type="button" class="admin-stat-card" data-filter="待寄送">
+                <span class="admin-stat-card__label">等待封裝</span>
+                <span class="admin-stat-card__value" id="admin-stat-ready-ship">0</span>
+            </button>
+
+            <button type="button" class="admin-stat-card" data-filter="已寄出">
+                <span class="admin-stat-card__label">已送出館</span>
+                <span class="admin-stat-card__value" id="admin-stat-shipped">0</span>
+            </button>
+        </section>
+
+        <section class="admin-panel" aria-label="訂單列表">
+            <div class="admin-panel__head">
+                <div>
+                    <h2 class="admin-panel__title">訂單列表</h2>
+                    <p class="admin-panel__subtitle">ORDER LIST</p>
+                </div>
+                <div class="admin-filters">
+                    <button class="admin-filter is-active" data-filter="all">
+                        全部
+                    </button>
+                
+                    <button class="admin-filter" data-filter="待匯款">
+                        待匯款
+                    </button>
+                
+                    <button class="admin-filter" data-filter="待確認">
+                        待確認
+                    </button>
+                
+                    <button class="admin-filter" data-filter="待寄送">
+                        待寄送
+                    </button>
+                
+                    <button class="admin-filter" data-filter="已寄出">
+                        已寄出
+                    </button>
+                
+                    <button class="admin-filter" data-filter="已完成">
+                        已完成
+                    </button>
+                </div>
+                <div class="admin-search">
+                    <label class="admin-search__label" for="admin-order-search">
+                        搜尋訂單
+                    </label>
+            
+                    <input
+                        type="search"
+                        id="admin-order-search"
+                        class="admin-search__input"
+                        placeholder="搜尋館藏編號、方案或公開署名"
+                        autocomplete="off"
+                    >
+            
+                    <button
+                        type="button"
+                        class="admin-search__clear"
+                        id="admin-order-search-clear"
+                        hidden
+                    >
+                        清除
+                    </button>
+                </div>
+            </div>
+
+            <div class="admin-table-wrap">
+                <table class="admin-table" id="admin-orders-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">館藏編號</th>
+                            <th scope="col">方案</th>
+                            <th scope="col">公開署名</th>
+                            <th scope="col">金額</th>
+                            <th scope="col">付款狀態</th>
+                            <th scope="col">寄送狀態</th>
+                            <th scope="col">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-orders-body"></tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <div class="admin-modal" id="admin-order-modal" hidden>
+        <div class="admin-modal__backdrop" id="admin-order-modal-backdrop" aria-hidden="true"></div>
+        <div
+            class="admin-modal__panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-order-modal-title"
+            id="admin-order-modal-panel"
+        >
+            <div class="admin-modal__head">
+                <div>
+                    <h2 class="admin-modal__title" id="admin-order-modal-title">訂單詳細資料</h2>
+                    <p class="admin-modal__subtitle">ORDER DETAIL</p>
+                </div>
+                <button type="button" class="admin-modal__close" id="admin-order-modal-close" aria-label="關閉">×</button>
+            </div>
+
+            <form class="admin-modal__form" id="admin-order-form" novalidate>
+                <div class="admin-modal__body">
+                    <div class="admin-modal__grid">
+                        <div class="admin-field admin-field--readonly">
+                            <span class="admin-field__label">館藏編號</span>
+                            <p class="admin-field__value" id="admin-detail-archive-id">—</p>
+                        </div>
+                        <div class="admin-field admin-field--readonly">
+                            <span class="admin-field__label">方案名稱</span>
+                            <p class="admin-field__value" id="admin-detail-plan-name">—</p>
+                        </div>
+                        <div class="admin-field admin-field--readonly">
+                            <span class="admin-field__label">方案金額</span>
+                            <p class="admin-field__value" id="admin-detail-plan-price">—</p>
+                        </div>
+                        <div class="admin-field admin-field--readonly">
+                            <span class="admin-field__label">真實姓名</span>
+                            <p class="admin-field__value" id="admin-detail-real-name">—</p>
+                        </div>
+                        <div class="admin-field admin-field--readonly">
+                            <span class="admin-field__label">Email</span>
+                            <p class="admin-field__value" id="admin-detail-email">—</p>
+                        </div>
+                        <div class="admin-field admin-field--readonly">
+                            <span class="admin-field__label">手機號碼</span>
+                            <p class="admin-field__value" id="admin-detail-phone">—</p>
+                        </div>
+                        <div class="admin-field admin-field--readonly">
+                            <span class="admin-field__label">Instagram</span>
+                            <p class="admin-field__value" id="admin-detail-instagram">—</p>
+                        </div>
+                        <div class="admin-field admin-field--readonly">
+                            <span class="admin-field__label">公開署名</span>
+                            <p class="admin-field__value" id="admin-detail-public-name">—</p>
+                        </div>
+                        <div class="admin-field admin-field--readonly">
+                            <span class="admin-field__label">寄送方式</span>
+                            <p class="admin-field__value" id="admin-detail-shipping-method">—</p>
+                        </div>
+                        <div class="admin-field admin-field--readonly">
+                            <span class="admin-field__label">收件人姓名</span>
+                            <p class="admin-field__value" id="admin-detail-recipient-name">—</p>
+                        </div>
+                        <div class="admin-field admin-field--readonly">
+                            <span class="admin-field__label">收件人電話</span>
+                            <p class="admin-field__value" id="admin-detail-recipient-phone">—</p>
+                        </div>
+                        <div class="admin-field admin-field--full admin-field--readonly">
+                            <span class="admin-field__label">收件資訊</span>
+                            <p class="admin-field__value admin-field__value--multiline" id="admin-detail-shipping-info">—</p>
+                        </div>
+                        <div class="admin-field admin-field--editable">
+                            <label class="admin-field__label" for="admin-detail-payment-status">付款狀態</label>
+                            <select class="admin-field__control" id="admin-detail-payment-status" name="paymentStatus">
+                                <option value="待匯款">待匯款</option>
+                                <option value="待確認">待確認</option>
+                                <option value="已確認">已確認</option>
+                            </select>
+                        </div>
+                        <div class="admin-field admin-field--readonly">
+                            <span class="admin-field__label">匯款日期</span>
+                            <p class="admin-field__value" id="admin-detail-transfer-date">—</p>
+                        </div>
+                        <div class="admin-field admin-field--readonly">
+                            <span class="admin-field__label">匯款金額</span>
+                            <p class="admin-field__value" id="admin-detail-transfer-amount">—</p>
+                        </div>
+                        <div class="admin-field admin-field--readonly">
+                            <span class="admin-field__label">匯款末五碼</span>
+                            <p class="admin-field__value" id="admin-detail-transfer-last-five">—</p>
+                        </div>
+                        <div class="admin-field admin-field--editable">
+                            <label class="admin-field__label" for="admin-detail-shipping-status">寄送狀態</label>
+                            <select class="admin-field__control" id="admin-detail-shipping-status" name="shippingStatus">
+                                <option value="尚未處理">尚未處理</option>
+                                <option value="製作中">製作中</option>
+                                <option value="待寄送">待寄送</option>
+                                <option value="已寄出">已寄出</option>
+                                <option value="已完成">已完成</option>
+                            </select>
+                        </div>
+                        <div class="admin-field admin-field--editable">
+                            <label class="admin-field__label" for="admin-detail-tracking-number">物流編號</label>
+                        
+                            <div class="admin-tracking">
+                                <input
+                                    class="admin-field__control"
+                                    type="text"
+                                    id="admin-detail-tracking-number"
+                                    name="trackingNumber"
+                                    autocomplete="off"
+                                >
+                        
+                                <button
+                                    type="button"
+                                    class="admin-tracking__copy"
+                                    id="admin-copy-tracking-number"
+                                >
+                                    複製
+                                </button>
+                            </div>
+                        </div>
+                        <div class="admin-field admin-field--full admin-field--editable">
+                            <label class="admin-field__label" for="admin-detail-admin-note">管理備註</label>
+                            <textarea class="admin-field__control admin-field__control--textarea" id="admin-detail-admin-note" name="adminNote" rows="4"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="admin-modal__feedback" id="admin-order-modal-feedback" role="status" hidden></p>
+
+                <footer class="admin-modal__foot">
+                    <div class="admin-modal__actions">
+                        <button type="submit" class="admin-modal__save">【儲存變更】</button>
+                        <button type="button" class="admin-modal__cancel" id="admin-order-modal-cancel">【關閉】</button>
+                    </div>
+                </footer>
+            </form>
+        </div>
+    </div>
+
+    <p class="admin-toast" id="admin-toast" role="status" aria-live="polite" hidden></p>
+
+    <script src="admin.js"></script>
+</body>
+</html>

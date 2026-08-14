@@ -1,0 +1,998 @@
+<!--
+  ============================================
+  禁書圖書館 — Forbidden Library 募資 landing page
+  ============================================
+
+  【這個檔案是什麼？】
+  HTML（HyperText Markup Language）是網頁的「骨架」。
+  瀏覽器讀取這個檔案，依照標籤（tag）的結構，
+  決定頁面上要顯示哪些文字、圖片、區塊。
+
+  【這個專案的結構】
+  - index.html  → 網頁內容與結構（本檔案）
+  - style.css   → 外觀與動畫樣式
+  - script.js   → 互動邏輯（倒數、進度條、粒子等）
+
+  【命名慣例說明】
+  class 使用 BEM 風格，例如：
+  - .hero          → 區塊名稱
+  - .hero__title    → 區塊內的元素（雙底線 __）
+  - .hero-reveal    → 修飾用狀態或變體（連字號 -）
+-->
+<!DOCTYPE html>
+<!-- DOCTYPE 告訴瀏覽器：這是一份標準 HTML5 文件 -->
+<html lang="zh-TW">
+<!-- lang="zh-TW" 表示主要語言是繁體中文，有助於搜尋引擎與螢幕閱讀器 -->
+
+<head>
+    <!--
+      <head> 區塊：使用者「看不到」的設定區
+      放標題、描述、字體、CSS 連結等「後設資料」
+    -->
+    <meta charset="UTF-8">
+    <!-- 字元編碼：UTF-8 可正確顯示中文、日文、emoji 等 -->
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--
+      響應式設計必備：
+      讓手機以「裝置寬度」顯示，而不是縮小版桌面網頁
+    -->
+
+    <title>雪薇生誕募資企劃 — Forbidden Library</title>
+    <!-- 瀏覽器分頁上顯示的標題 -->
+
+    <meta name="description" content="禁書圖書館 — 雪薇生誕募資企劃。踏入神秘的古老圖書館，一同揭開被遺忘的篇章。">
+    <!-- 搜尋結果可能顯示的網頁描述 -->
+
+    <!-- 預先連線到 Google Fonts，加快字體載入速度 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!--
+      載入三組字體：
+      - Cinzel：英文標題用，古典襯線風格
+      - Noto Serif TC/JP：中文內文用
+    -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@300;400;600;700&family=Marcellus&family=Noto+Serif+JP:wght@300;400;600&family=Noto+Serif+TC:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <!-- 連結本專案的外觀樣式表 -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- ==================== 開場 Loading ==================== -->
+    <div id="site-loader" class="site-loader" hidden aria-hidden="true" aria-live="polite">
+        <div class="site-loader__ambient" aria-hidden="true">
+            <div class="site-loader__sigil"></div>
+        </div>
+        <div class="site-loader__inner">
+            <p class="site-loader__brand">FORBIDDEN LIBRARY</p>
+            <p class="site-loader__status" id="site-loader-status">解除封印中</p>
+            <div class="site-loader__track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="site-loader-track">
+                <span class="site-loader__fill" id="site-loader-fill"></span>
+            </div>
+            <p class="site-loader__percent" id="site-loader-percent" aria-hidden="true">0%</p>
+            <p class="site-loader__opened" id="site-loader-opened" hidden>ARCHIVE OPENED</p>
+        </div>
+    </div>
+
+    <!--
+      <body> 區塊：使用者「真正看到」的所有內容
+      以下依「由前到後、由上到下」的視覺層次排列
+    -->
+
+    <!-- ==================== 固定導覽列 ==================== -->
+    <!--
+      <nav> 是語意化標籤，代表「導覽」區域
+      position: fixed（在 CSS 中）讓它永遠固定在螢幕頂部
+      aria-label 提供無障礙說明，協助螢幕閱讀器使用者
+    -->
+    <nav class="nav" id="nav" aria-label="主要導覽">
+        <div class="nav__inner">
+            <!-- 品牌區：點擊回到 Hero 首屏 -->
+            <a href="#hero" class="nav__brand">
+                <!-- aria-hidden="true" 表示純裝飾，螢幕閱讀器可略過 -->
+                <span class="nav__seal" aria-hidden="true">禁</span>
+                <span class="nav__name">Forbidden Library</span>
+            </a>
+
+            <!--
+              漢堡選單按鈕（手機版才顯示，由 CSS 控制）
+              aria-expanded：選單是否展開（由 JavaScript 切換）
+              aria-controls：這個按鈕控制哪個元素（nav-menu）
+            -->
+            <button class="nav__toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-menu" aria-label="開啟選單">
+                <!-- 三條線圖示，由 CSS 繪製 -->
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <div class="nav__menu" id="nav-menu">
+                <!-- 錨點連結：href="#id" 會跳到同頁面對應 id 的區塊 -->
+                <ul class="nav__links">
+                    <li><a href="#archive" class="nav__link">館藏紀錄</a></li>
+                    <li><a href="#support" class="nav__link">募資方案</a></li>
+                    <li><a href="#countdown" class="nav__link">解鎖目標</a></li>
+                    <li><a href="#faq" class="nav__link">常見問題</a></li>
+                    <li><a href="#archive-search" class="nav__link">館藏查詢</a></li>
+                </ul>
+                <a href="#support-form" class="nav__cta lib-btn-interact">立即支持</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ==================== 全站氛圍層 ==================== -->
+    <!--
+      金色灰塵粒子（canvas）與桌機滑鼠燭光（#mouse-glow）
+      純視覺裝飾，不影響操作；由 script.js 初始化
+    -->
+    <canvas id="particles" aria-hidden="true"></canvas>
+    <div id="mouse-glow" class="mouse-glow" aria-hidden="true"></div>
+    <div id="custom-cursor" class="custom-cursor" hidden aria-hidden="true">
+        <div class="custom-cursor__dot" id="custom-cursor-dot"></div>
+        <div class="custom-cursor__ring" id="custom-cursor-ring">
+            <span class="custom-cursor__label" id="custom-cursor-label"></span>
+        </div>
+    </div>
+
+    <!-- ==================== Hero 主視覺區 ==================== -->
+    <main class="hero" id="hero">
+        <!-- 哥德式圖書館背景 -->
+        <div class="hero__bg" aria-hidden="true">
+            <svg class="hero__library hero__parallax" data-parallax="0.018" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="heroLibFloor" x1="720" y1="600" x2="720" y2="900" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stop-color="#1a0610"/>
+                        <stop offset="100%" stop-color="#0a0608"/>
+                    </linearGradient>
+                    <linearGradient id="heroLibAisle" x1="720" y1="0" x2="720" y2="900" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stop-color="#120a0f" stop-opacity="0.2"/>
+                        <stop offset="50%" stop-color="#0a0608" stop-opacity="0.85"/>
+                        <stop offset="100%" stop-color="#0a0608"/>
+                    </linearGradient>
+                </defs>
+                <rect width="1440" height="900" fill="#080508"/>
+                <path d="M0 0 H1440 V900 H0 Z" fill="url(#heroLibAisle)"/>
+                <path d="M0 0 Q720 120 1440 0 V900 H0 Z" fill="#0f0810" opacity="0.9"/>
+                <g opacity="0.85">
+                    <rect x="0" y="80" width="420" height="820" fill="#0a0608"/>
+                    <rect x="1020" y="80" width="420" height="820" fill="#0a0608"/>
+                </g>
+                <g fill="#120a0f" stroke="#2d0a1a" stroke-width="0.5">
+                    <rect x="24" y="100" width="372" height="18" rx="1"/>
+                    <rect x="24" y="170" width="372" height="18" rx="1"/>
+                    <rect x="24" y="240" width="372" height="18" rx="1"/>
+                    <rect x="24" y="310" width="372" height="18" rx="1"/>
+                    <rect x="24" y="380" width="372" height="18" rx="1"/>
+                    <rect x="24" y="450" width="372" height="18" rx="1"/>
+                    <rect x="24" y="520" width="372" height="18" rx="1"/>
+                    <rect x="24" y="590" width="372" height="18" rx="1"/>
+                    <rect x="24" y="660" width="372" height="18" rx="1"/>
+                    <rect x="1044" y="100" width="372" height="18" rx="1"/>
+                    <rect x="1044" y="170" width="372" height="18" rx="1"/>
+                    <rect x="1044" y="240" width="372" height="18" rx="1"/>
+                    <rect x="1044" y="310" width="372" height="18" rx="1"/>
+                    <rect x="1044" y="380" width="372" height="18" rx="1"/>
+                    <rect x="1044" y="450" width="372" height="18" rx="1"/>
+                    <rect x="1044" y="520" width="372" height="18" rx="1"/>
+                    <rect x="1044" y="590" width="372" height="18" rx="1"/>
+                    <rect x="1044" y="660" width="372" height="18" rx="1"/>
+                </g>
+                <g opacity="0.55">
+                    <rect x="40" y="118" width="14" height="44" fill="#2d0a1a"/><rect x="58" y="118" width="10" height="44" fill="#4a0e2e"/><rect x="72" y="118" width="16" height="44" fill="#1a0610"/>
+                    <rect x="96" y="118" width="12" height="44" fill="#4a0e2e"/><rect x="112" y="118" width="18" height="44" fill="#2d0a1a"/><rect x="134" y="118" width="10" height="44" fill="#6b1a3a"/>
+                    <rect x="1060" y="188" width="14" height="44" fill="#2d0a1a"/><rect x="1078" y="188" width="10" height="44" fill="#4a0e2e"/><rect x="1092" y="188" width="16" height="44" fill="#1a0610"/>
+                    <rect x="1116" y="188" width="12" height="44" fill="#4a0e2e"/><rect x="1132" y="188" width="18" height="44" fill="#2d0a1a"/>
+                </g>
+                <path d="M420 900 L420 120 Q720 40 1020 120 L1020 900" fill="none" stroke="#1a0610" stroke-width="2" opacity="0.6"/>
+                <rect y="740" width="1440" height="160" fill="url(#heroLibFloor)"/>
+            </svg>
+            <div class="hero__bg-dim"></div>
+            <div class="hero__fog hero__fog--1"></div>
+            <div class="hero__fog hero__fog--2"></div>
+        </div>
+
+        <div class="hero__lily hero__lily--left hero__parallax" data-parallax="0.03" aria-hidden="true">
+            <svg viewBox="0 0 80 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M40 180 C40 130 20 100 14 60 C8 35 18 12 40 0 C62 12 72 35 66 60 C60 100 40 130 40 180Z" fill="url(#heroLilyL)" opacity="0.35"/>
+                <defs>
+                    <linearGradient id="heroLilyL" x1="40" y1="0" x2="40" y2="180" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stop-color="#c41e3a"/>
+                        <stop offset="100%" stop-color="#4a0e2e"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+        </div>
+        <div class="hero__lily hero__lily--right hero__parallax" data-parallax="0.025" aria-hidden="true">
+            <svg viewBox="0 0 80 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M40 180 C40 130 20 100 14 60 C8 35 18 12 40 0 C62 12 72 35 66 60 C60 100 40 130 40 180Z" fill="url(#heroLilyR)" opacity="0.35"/>
+                <defs>
+                    <linearGradient id="heroLilyR" x1="40" y1="0" x2="40" y2="180" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stop-color="#c41e3a"/>
+                        <stop offset="100%" stop-color="#4a0e2e"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+        </div>
+
+        <div class="hero__vignette" aria-hidden="true"></div>
+
+        <div class="hero__content">
+            <div class="hero__canvas">
+                <header class="hero__header hero-reveal" data-hero-phase="title">
+                    <h1 class="hero__title">
+                        <span class="hero__title-year">2027</span>
+                        <span class="hero__title-line hero__title-line--brand">
+                            <span class="hero__title-zh">雪薇</span> <span class="hero__title-brand">Yukibi</span>
+                        </span>
+                        <span class="hero__title-line hero__title-line--sub">募資企劃</span>
+                    </h1>
+                    <p class="hero__title-en">Forbidden Library</p>
+                    <p class="hero__tagline">「每一本禁書，都等待真正的閱讀者。」</p>
+                </header>
+
+                <div class="hero__showcase hero-reveal" data-hero-phase="book">
+                    <div class="hero__focal">
+                        <div class="hero__circles hero__parallax" data-parallax="0.012" aria-hidden="true">
+                            <div class="hero__circle hero__circle--primary">
+                                <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="200" cy="200" r="192" stroke="#d4af37" stroke-width="0.45" opacity="0.55"/>
+                                    <circle cx="200" cy="200" r="168" stroke="#d4af37" stroke-width="0.38" opacity="0.45"/>
+                                    <circle cx="200" cy="200" r="144" stroke="#d4af37" stroke-width="0.32" opacity="0.38"/>
+                                    <circle cx="200" cy="200" r="120" stroke="#d4af37" stroke-width="0.28" opacity="0.32"/>
+                                    <circle cx="200" cy="200" r="96" stroke="#d4af37" stroke-width="0.24" opacity="0.28"/>
+                                    <polygon points="200,16 368,352 32,352" stroke="#d4af37" stroke-width="0.32" fill="none" opacity="0.3"/>
+                                </svg>
+                            </div>
+                            <div class="hero__circle hero__circle--outer">
+                                <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="200" cy="200" r="196" stroke="#d4af37" stroke-width="0.28" opacity="0.35" stroke-dasharray="4 8"/>
+                                    <circle cx="200" cy="200" r="178" stroke="#d4af37" stroke-width="0.22" opacity="0.28"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="hero__book-glow" aria-hidden="true"></div>
+                        <canvas class="hero__book-particles" id="hero-particles" aria-hidden="true"></canvas>
+                        <div class="hero__book-wrap hero__parallax" data-parallax="0.034">
+                            <div class="hero__book-float">
+                                <div class="hero__book-breathe" aria-hidden="true"></div>
+                                <img
+                                    class="hero__book"
+                                    src="assets/forbidden-book.png"
+                                    alt="漂浮的古老禁書"
+                                    width="460"
+                                    height="690"
+                                    decoding="async"
+                                    fetchpriority="high"
+                                >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero__actions">
+                    <div class="hero__fund hero-reveal" data-hero-phase="metrics" role="region" aria-label="募資進度">
+                        <p class="hero__fund-row">
+                            <span id="raised-amount">NT$ 0</span>
+                            <span class="hero__fund-sep">/</span>
+                            <span id="goal-amount">NT$ 250,000</span>
+                        </p>
+                        <div class="hero__fund-track">
+                            <div class="progress__bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="募資進度">
+                                <div class="progress__fill" id="progress-fill">
+                                    <div class="progress__shimmer"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="hero__fund-meta">
+                            <span class="hero__fund-meta-item"><span id="hero-days-left">50</span> Days</span>
+                            <span class="hero__fund-dot" aria-hidden="true">·</span>
+                            <span class="hero__fund-meta-item"><span id="progress-percent-display">0%</span></span>
+                        </p>
+                        <span class="progress__percent visually-hidden" id="progress-percent" aria-hidden="true">0%</span>
+                        <span class="visually-hidden" id="days-left" aria-hidden="true">50</span>
+                        <span class="visually-hidden" id="supporter-count" aria-hidden="true">0</span>
+                    </div>
+
+                    <a href="#story" class="hero__btn hero-reveal" data-hero-phase="cta" id="btn-support">【開始探索】</a>
+
+                    <div class="scroll-hint scroll-hint--flow hero-reveal" id="scroll-hint" data-hero-phase="cta" aria-hidden="true">
+                        <span class="scroll-hint__text">向下探索</span>
+                        <div class="scroll-hint__arrow">
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ==================== 館藏紀錄 ==================== -->
+    <section class="archive-section" id="archive" aria-label="館藏紀錄">
+        <div class="archive-section__inner">
+            <div class="archive-section__grid">
+                <div class="archive-section__content">
+                    <p class="archive-section__chapter archive-reveal archive-reveal--chapter">CHAPTER 01</p>
+                    <h2 class="archive-section__title archive-reveal archive-reveal--title">館藏紀錄</h2>
+                    <p class="archive-section__subtitle archive-reveal archive-reveal--subtitle">Archive Record</p>
+                    <div class="archive-section__body archive-reveal archive-reveal--body">
+                        <p>在被世人遺忘的圖書館深處，<br>收藏著從未被允許閱讀的禁書。</p>
+                        <p>每一本書，都封存著一段願望、<br>一場遺憾，以及尚未完成的故事。</p>
+                        <p>這一次，我想邀請你成為這座圖書館的一員，<br>和我一起翻開屬於雪薇 Yukibi 的全新篇章。</p>
+                    </div>
+                </div>
+
+                <aside class="archive-section__aside">
+                    <div class="archive-panel-wrap archive-reveal archive-reveal--panel">
+                        <div class="archive-panel">
+                            <div class="archive-panel__sigil" aria-hidden="true"></div>
+                            <div class="archive-panel__cover">
+                                <div class="archive-panel__cover-texture" aria-hidden="true"></div>
+                                <div class="archive-panel__cover-frame" aria-hidden="true"></div>
+                                <div class="archive-panel__cover-art">
+                                    <img
+                                        class="archive-panel__cover-image"
+                                        src="assets/彼岸花禁書.png"
+                                        alt="彼岸花禁書館藏封面"
+                                        width="386"
+                                        height="483"
+                                        decoding="async"
+                                        loading="lazy"
+                                    >
+                                </div>
+                            </div>
+                        </div>
+                        <div class="archive-meta-card" aria-hidden="true">
+                            <dl class="archive-meta-card__list">
+                                <div class="archive-meta-card__row">
+                                    <dt class="archive-meta-card__label">Archive No.</dt>
+                                    <dd class="archive-meta-card__value archive-meta-card__value--id">FL-2027-001</dd>
+                                </div>
+                                <div class="archive-meta-card__row">
+                                    <dt class="archive-meta-card__label">分類</dt>
+                                    <dd class="archive-meta-card__value">禁書</dd>
+                                </div>
+                                <div class="archive-meta-card__row">
+                                    <dt class="archive-meta-card__label">狀態</dt>
+                                    <dd class="archive-meta-card__value">封印中</dd>
+                                </div>
+                                <div class="archive-meta-card__row">
+                                    <dt class="archive-meta-card__label">持有人</dt>
+                                    <dd class="archive-meta-card__value">Yukibi</dd>
+                                </div>
+                            </dl>
+                        </div>
+                        <p class="archive-panel__hint lib-btn-interact" aria-hidden="true">【 開啟禁書 】</p>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== 世界觀故事區 ==================== -->
+    <section class="story-section" id="story" aria-label="禁書圖書館的世界觀">
+        <div class="story-section__inner">
+            <article class="story-section__page">
+                <!-- 區域內彼岸花裝飾（書頁角落） -->
+                <div class="story-section__lily story-section__lily--tl" aria-hidden="true">
+                    <svg viewBox="0 0 60 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M30 140 C30 100 15 80 10 50 C5 30 15 10 30 0 C45 10 55 30 50 50 C45 80 30 100 30 140Z" fill="url(#storyLilyGrad1)" opacity="0.55"/>
+                        <line x1="30" y1="0" x2="30" y2="140" stroke="#5c0f28" stroke-width="0.8" opacity="0.4"/>
+                        <defs>
+                            <linearGradient id="storyLilyGrad1" x1="30" y1="0" x2="30" y2="140" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#c41e3a"/>
+                                <stop offset="100%" stop-color="#4a0e2e"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="story-section__lily story-section__lily--br" aria-hidden="true">
+                    <svg viewBox="0 0 60 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M30 140 C30 100 15 80 10 50 C5 30 15 10 30 0 C45 10 55 30 50 50 C45 80 30 100 30 140Z" fill="url(#storyLilyGrad2)" opacity="0.55"/>
+                        <line x1="30" y1="0" x2="30" y2="140" stroke="#5c0f28" stroke-width="0.8" opacity="0.4"/>
+                        <defs>
+                            <linearGradient id="storyLilyGrad2" x1="30" y1="0" x2="30" y2="140" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#c41e3a"/>
+                                <stop offset="100%" stop-color="#4a0e2e"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+
+                <div class="story-section__frame" aria-hidden="true"></div>
+
+                <h2 class="story-section__title reveal">禁書圖書館的邀請</h2>
+                <p class="story-section__subtitle reveal">The Invitation from the Forbidden Library</p>
+
+                <div class="story-section__body reveal">
+                    <p>
+                        在被世人遺忘的圖書館深處，<br>
+                        收藏著從未被允許閱讀的禁書。
+                    </p>
+                    <p>
+                        每一本書，都封存著一段願望、<br>
+                        一場遺憾，以及尚未完成的故事。
+                    </p>
+                    <p>
+                        這一次，我想邀請你成為這座圖書館的一員，<br>
+                        和我一起翻開屬於雪薇的全新篇章。
+                    </p>
+                </div>
+
+                <p class="story-section__ornament story-section__ornament--bottom reveal">— ✦ —</p>
+            </article>
+        </div>
+    </section>
+
+    <!-- ==================== 募資方案 CHAPTER 02 ==================== -->
+    <section class="lib-section rewards-section" id="support" aria-label="募資方案">
+        <div class="lib-section__inner rewards-section__inner">
+            <header class="chapter-header chapter-header--center reveal">
+                <p class="chapter-header__chapter">CHAPTER 02</p>
+                <h2 class="chapter-header__title">募資方案</h2>
+                <p class="chapter-header__subtitle">Support Plans</p>
+            </header>
+            <p class="rewards-section__intro reveal">📚 雪薇 2027 生誕募資方案｜《禁書圖書館》</p>
+            <div class="rewards-section__shelf" id="rewards-shelf"></div>
+            <div class="rewards-detail reveal" id="rewards-detail" aria-hidden="true"></div>
+        </div>
+    </section>
+
+    <!-- ==================== 解鎖目標 CHAPTER 03 ==================== -->
+    <section class="lib-section sealed-section" id="countdown" aria-label="解鎖目標">
+        <div class="lib-section__inner sealed-section__inner">
+            <header class="chapter-header chapter-header--center reveal">
+                <p class="chapter-header__chapter">CHAPTER 03</p>
+                <h2 class="chapter-header__title">解鎖目標</h2>
+                <p class="chapter-header__subtitle">SEALED GOALS</p>
+            </header>
+            <p class="sealed-section__desc reveal">「當館藏逐漸完整，沉睡的封印也將依序解除。」</p>
+            <div class="sealed-summary reveal" id="sealed-summary" aria-live="polite"></div>
+            <div class="sealed-goals" id="sealed-goals" aria-live="polite"></div>
+        </div>
+    </section>
+
+    <!-- ==================== 館員守則 CHAPTER 04 ==================== -->
+    <section class="lib-section rules-section" id="faq" aria-label="常見問題">
+        <div class="lib-section__inner rules-section__inner">
+            <header class="chapter-header chapter-header--center reveal">
+                <p class="chapter-header__chapter">CHAPTER 04</p>
+                <h2 class="chapter-header__title">館員守則</h2>
+                <p class="chapter-header__subtitle">LIBRARY RULES</p>
+            </header>
+            <p class="rules-section__desc reveal">「所有進入禁書圖書館的人，都必須先閱讀館員留下的規則。」</p>
+            <div class="rules-section__shelf" id="rules-shelf">
+                <article class="rules-scroll reveal">
+                    <h3 class="rules-scroll__heading">
+                        <button class="rules-scroll__toggle" type="button" id="rules-trigger-01" aria-expanded="false" aria-controls="rules-panel-01">
+                            <span class="rules-scroll__code">RULE 01</span>
+                            <span class="rules-scroll__question">如何參與募資？</span>
+                            <span class="rules-scroll__arrow" aria-hidden="true"></span>
+                        </button>
+                    </h3>
+                    <div class="rules-scroll__panel" id="rules-panel-01" role="region" aria-labelledby="rules-trigger-01" aria-hidden="true">
+                        <div class="rules-scroll__panel-inner">
+                            <p class="rules-scroll__answer">請在募資方案中選擇希望支持的方案，點擊「立即支持」後依照頁面指示完成資料填寫與付款。</p>
+                        </div>
+                    </div>
+                </article>
+                <article class="rules-scroll reveal">
+                    <h3 class="rules-scroll__heading">
+                        <button class="rules-scroll__toggle" type="button" id="rules-trigger-02" aria-expanded="false" aria-controls="rules-panel-02">
+                            <span class="rules-scroll__code">RULE 02</span>
+                            <span class="rules-scroll__question">募資商品何時寄出？</span>
+                            <span class="rules-scroll__arrow" aria-hidden="true"></span>
+                        </button>
+                    </h3>
+                    <div class="rules-scroll__panel" id="rules-panel-02" role="region" aria-labelledby="rules-trigger-02" aria-hidden="true">
+                        <div class="rules-scroll__panel-inner">
+                            <p class="rules-scroll__answer">預計於募資結束後開始製作與整理，實際寄送時間將另行公告。若部分商品製作期較長，將以整批完成後寄出為原則。預計於生誕祭當天以前讓大家收到募資商品。</p>
+                        </div>
+                    </div>
+                </article>
+                <article class="rules-scroll reveal">
+                    <h3 class="rules-scroll__heading">
+                        <button class="rules-scroll__toggle" type="button" id="rules-trigger-03" aria-expanded="false" aria-controls="rules-panel-03">
+                            <span class="rules-scroll__code">RULE 03</span>
+                            <span class="rules-scroll__question">商品會使用哪種方式寄送？</span>
+                            <span class="rules-scroll__arrow" aria-hidden="true"></span>
+                        </button>
+                    </h3>
+                    <div class="rules-scroll__panel" id="rules-panel-03" role="region" aria-labelledby="rules-trigger-03" aria-hidden="true">
+                        <div class="rules-scroll__panel-inner">
+                            <p class="rules-scroll__answer">寄送方式均統一使用7-ELEVEN超商取貨。</p>
+                        </div>
+                    </div>
+                </article>
+                <article class="rules-scroll reveal">
+                    <h3 class="rules-scroll__heading">
+                        <button class="rules-scroll__toggle" type="button" id="rules-trigger-04" aria-expanded="false" aria-controls="rules-panel-04">
+                            <span class="rules-scroll__code">RULE 04</span>
+                            <span class="rules-scroll__question">海外可以參與嗎？</span>
+                            <span class="rules-scroll__arrow" aria-hidden="true"></span>
+                        </button>
+                    </h3>
+                    <div class="rules-scroll__panel" id="rules-panel-04" role="region" aria-labelledby="rules-trigger-04" aria-hidden="true">
+                        <div class="rules-scroll__panel-inner">
+                            <p class="rules-scroll__answer">可以，但海外運費需另外計算。如有需要可另行聯絡主辦單位。</p>
+                        </div>
+                    </div>
+                </article>
+                <article class="rules-scroll reveal">
+                    <h3 class="rules-scroll__heading">
+                        <button class="rules-scroll__toggle" type="button" id="rules-trigger-05" aria-expanded="false" aria-controls="rules-panel-05">
+                            <span class="rules-scroll__code">RULE 05</span>
+                            <span class="rules-scroll__question">方案內容可以更換或拆分嗎？</span>
+                            <span class="rules-scroll__arrow" aria-hidden="true"></span>
+                        </button>
+                    </h3>
+                    <div class="rules-scroll__panel" id="rules-panel-05" role="region" aria-labelledby="rules-trigger-05" aria-hidden="true">
+                        <div class="rules-scroll__panel-inner">
+                            <p class="rules-scroll__answer">原則上無法拆分或更換方案內容。如有特殊需求，請先聯絡主辦方確認。</p>
+                        </div>
+                    </div>
+                </article>
+                <article class="rules-scroll reveal">
+                    <h3 class="rules-scroll__heading">
+                        <button class="rules-scroll__toggle" type="button" id="rules-trigger-06" aria-expanded="false" aria-controls="rules-panel-06">
+                            <span class="rules-scroll__code">RULE 06</span>
+                            <span class="rules-scroll__question">同一個人可以支持多個方案嗎？</span>
+                            <span class="rules-scroll__arrow" aria-hidden="true"></span>
+                        </button>
+                    </h3>
+                    <div class="rules-scroll__panel" id="rules-panel-06" role="region" aria-labelledby="rules-trigger-06" aria-hidden="true">
+                        <div class="rules-scroll__panel-inner">
+                            <p class="rules-scroll__answer">可以。若重複支持不同方案，將依照每筆訂單內容分別準備回饋品。</p>
+                        </div>
+                    </div>
+                </article>
+                <article class="rules-scroll reveal">
+                    <h3 class="rules-scroll__heading">
+                        <button class="rules-scroll__toggle" type="button" id="rules-trigger-07" aria-expanded="false" aria-controls="rules-panel-07">
+                            <span class="rules-scroll__code">RULE 07</span>
+                            <span class="rules-scroll__question">名字要怎麼出現在花籃署名上？</span>
+                            <span class="rules-scroll__arrow" aria-hidden="true"></span>
+                        </button>
+                    </h3>
+                    <div class="rules-scroll__panel" id="rules-panel-07" role="region" aria-labelledby="rules-trigger-07" aria-hidden="true">
+                        <div class="rules-scroll__panel-inner">
+                            <p class="rules-scroll__answer">付款完成後請填寫希望公開顯示的署名。</p>
+                        </div>
+                    </div>
+                </article>
+                <article class="rules-scroll reveal">
+                    <h3 class="rules-scroll__heading">
+                        <button class="rules-scroll__toggle" type="button" id="rules-trigger-08" aria-expanded="false" aria-controls="rules-panel-08">
+                            <span class="rules-scroll__code">RULE 08</span>
+                            <span class="rules-scroll__question">募資沒有達到最終目標，方案還會執行嗎？</span>
+                            <span class="rules-scroll__arrow" aria-hidden="true"></span>
+                        </button>
+                    </h3>
+                    <div class="rules-scroll__panel" id="rules-panel-08" role="region" aria-labelledby="rules-trigger-08" aria-hidden="true">
+                        <div class="rules-scroll__panel-inner">
+                            <p class="rules-scroll__answer">會。各方案回饋內容不受最終解鎖目標影響；解鎖目標屬於追加企劃內容。</p>
+                        </div>
+                    </div>
+                </article>
+                <article class="rules-scroll reveal">
+                    <h3 class="rules-scroll__heading">
+                        <button class="rules-scroll__toggle" type="button" id="rules-trigger-09" aria-expanded="false" aria-controls="rules-panel-09">
+                            <span class="rules-scroll__code">RULE 09</span>
+                            <span class="rules-scroll__question">可以取消或退款嗎？</span>
+                            <span class="rules-scroll__arrow" aria-hidden="true"></span>
+                        </button>
+                    </h3>
+                    <div class="rules-scroll__panel" id="rules-panel-09" role="region" aria-labelledby="rules-trigger-09" aria-hidden="true">
+                        <div class="rules-scroll__panel-inner">
+                            <p class="rules-scroll__answer">因多數商品為募資限定並依支持數量製作，付款完成後原則上不接受取消或退款。若遇特殊狀況，請聯絡主辦方協助處理。</p>
+                        </div>
+                    </div>
+                </article>
+                <article class="rules-scroll reveal">
+                    <h3 class="rules-scroll__heading">
+                        <button class="rules-scroll__toggle" type="button" id="rules-trigger-10" aria-expanded="false" aria-controls="rules-panel-10">
+                            <span class="rules-scroll__code">RULE 10</span>
+                            <span class="rules-scroll__question">如果商品有瑕疵或缺件怎麼辦？</span>
+                            <span class="rules-scroll__arrow" aria-hidden="true"></span>
+                        </button>
+                    </h3>
+                    <div class="rules-scroll__panel" id="rules-panel-10" role="region" aria-labelledby="rules-trigger-10" aria-hidden="true">
+                        <div class="rules-scroll__panel-inner">
+                            <p class="rules-scroll__answer">收到商品後請於七日內拍照並聯絡主辦方，確認後將協助補寄或更換。</p>
+                        </div>
+                    </div>
+                </article>
+        
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== 最終支持區 FINAL CHAPTER ==================== -->
+    <section class="lib-section join-section" id="join" aria-label="加入館藏">
+        <div class="join-section__ambient" aria-hidden="true">
+            <div class="join-section__sigil"></div>
+            <div class="join-section__glow"></div>
+        </div>
+        <div class="lib-section__inner join-section__inner">
+            <header class="chapter-header chapter-header--center chapter-header--final reveal">
+                <p class="chapter-header__chapter">FINAL CHAPTER</p>
+                <h2 class="chapter-header__title join-section__title">加入館藏</h2>
+                <p class="chapter-header__subtitle">JOIN THE ARCHIVE</p>
+            </header>
+            <div class="join-section__body">
+                <p class="join-section__lead reveal">
+                    「有些故事，不應被遺忘；<br>
+                    有些故事，值得被永久收藏。」
+                </p>
+                <p class="join-section__sub reveal">
+                    「選擇屬於你的館藏資格，<br>
+                    一起完成雪薇 Yukibi 的全新篇章。」
+                </p>
+                <div class="join-section__actions reveal">
+                    <a href="#support" class="join-section__cta lib-btn-interact">【選擇募資方案】</a>
+                    <a href="#countdown" class="join-section__link">查看解鎖目標</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== 館藏查詢 ARCHIVE SEARCH ==================== -->
+    <section class="lib-section archive-search-section" id="archive-search" aria-label="館藏查詢">
+        <div class="lib-section__inner archive-search-section__inner">
+            <div class="archive-search-stack">
+                <div class="archive-search-card lib-card reveal">
+                    <header class="archive-search-card__header">
+                        <h2 class="archive-search-card__title">館藏查詢</h2>
+                        <p class="archive-search-card__subtitle">ARCHIVE SEARCH</p>
+                    </header>
+                    <p class="archive-search-card__desc">
+                        輸入你的館藏編號<br>
+                        即可查詢目前收藏狀態
+                    </p>
+                    <label class="archive-search-card__label" for="archive-search-input">館藏編號</label>
+                    <input
+                        class="archive-search-card__input"
+                        type="text"
+                        id="archive-search-input"
+                        name="archiveSearchId"
+                        placeholder="FL-2027-0001"
+                        autocomplete="off"
+                        spellcheck="false"
+                        inputmode="text"
+                    >
+                    <p class="archive-search-feedback archive-search-feedback--error" id="archive-search-error" role="alert" hidden></p>
+                    <button type="button" class="archive-search-card__submit lib-btn-interact lib-btn-interact--gold" id="archive-search-submit">【查詢館藏】</button>
+                </div>
+
+                <article class="archive-search-result" id="archive-search-result" hidden aria-live="polite">
+                    <header class="archive-search-result__header">
+                        <h3 class="archive-search-result__title">館藏紀錄</h3>
+                        <p class="archive-search-result__subtitle">ARCHIVE RECORD</p>
+                    </header>
+                    <div class="archive-search-result__status" id="archive-search-result-status"></div>
+                    <dl class="archive-search-result__list" id="archive-search-result-list"></dl>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== 支持表單 FINAL CONTRACT ==================== -->
+    <section class="lib-section contract-section" id="support-form" aria-label="支持表單">
+        <div class="lib-section__inner contract-section__inner">
+            <header class="chapter-header chapter-header--center reveal">
+                <p class="chapter-header__chapter">FINAL CONTRACT</p>
+                <h2 class="chapter-header__title">完成封印契約</h2>
+                <p class="chapter-header__subtitle">SUPPORT FORM</p>
+            </header>
+            <p class="contract-section__desc reveal">「請留下館藏資料，完成屬於你的封印契約。」</p>
+
+            <div class="contract-section__selected reveal" id="contract-selected" hidden>
+                <p class="contract-section__selected-label">已選方案</p>
+                <p class="contract-section__selected-value" id="contract-selected-text"></p>
+            </div>
+
+            <div class="contract-section__workspace" id="contract-workspace">
+                <form class="contract-form" id="contract-form" novalidate>
+                    <div class="contract-form__grid">
+                        <div class="contract-field" data-field="tier">
+                            <label class="contract-field__label" for="contract-tier">募資方案</label>
+                            <select class="contract-field__control" id="contract-tier" name="tier" required autocomplete="off">
+                                <option value="">請選擇募資方案</option>
+                                <option value="reader">閱覽者｜NT$500</option>
+                                <option value="collector">藏書者｜NT$1,000</option>
+                                <option value="archivist">典藏者｜NT$3,000</option>
+                                <option value="key-bearer">持鑰者｜NT$5,000</option>
+                                <option value="grand-librarian">圖書館館長｜NT$10,000</option>
+                                <option value="warden">禁書守護者｜NT$30,000</option>
+                            </select>
+                            <p class="contract-field__error" id="contract-tier-error" role="alert"></p>
+                        </div>
+
+                        <div class="contract-field" data-field="realName">
+                            <label class="contract-field__label" for="contract-real-name">真實姓名</label>
+                            <input class="contract-field__control" type="text" id="contract-real-name" name="realName" required autocomplete="name">
+                            <p class="contract-field__error" id="contract-real-name-error" role="alert"></p>
+                        </div>
+
+                        <div class="contract-field" data-field="email">
+                            <label class="contract-field__label" for="contract-email">Email</label>
+                            <input class="contract-field__control" type="email" id="contract-email" name="email" required autocomplete="email" inputmode="email">
+                            <p class="contract-field__error" id="contract-email-error" role="alert"></p>
+                        </div>
+
+                        <div class="contract-field" data-field="phone">
+                            <label class="contract-field__label" for="contract-phone">手機號碼</label>
+                            <input class="contract-field__control" type="tel" id="contract-phone" name="phone" required autocomplete="tel" inputmode="tel">
+                            <p class="contract-field__error" id="contract-phone-error" role="alert"></p>
+                        </div>
+
+                        <div class="contract-field" data-field="ig">
+                            <label class="contract-field__label" for="contract-ig">IG 帳號<span class="contract-field__optional">（選填）</span></label>
+                            <input class="contract-field__control" type="text" id="contract-ig" name="ig" autocomplete="off" autocapitalize="off">
+                        </div>
+
+                        <div class="contract-field" data-field="publicName">
+                            <label class="contract-field__label" for="contract-public-name">公開署名</label>
+                            <input class="contract-field__control" type="text" id="contract-public-name" name="publicName" required autocomplete="nickname">
+                            <p class="contract-field__hint">此名稱將用於花籃署名與感謝名單。</p>
+                            <p class="contract-field__error" id="contract-public-name-error" role="alert"></p>
+                        </div>
+
+                        <div class="contract-field contract-field--full" data-field="shippingInfo" id="contract-shipping" hidden>
+                            <p class="contract-shipping__method" id="contract-shipping-method"></p>
+                            <p class="contract-shipping__hint" id="contract-shipping-hint"></p>
+                        </div>
+
+                        <div class="contract-shipping-fields contract-form__grid" id="contract-shipping-cvs" hidden>
+                            <div class="contract-field" data-field="cvsRecipientName">
+                                <label class="contract-field__label" for="contract-cvs-recipient-name">收件人姓名</label>
+                                <input class="contract-field__control" type="text" id="contract-cvs-recipient-name" name="cvsRecipientName" autocomplete="shipping name">
+                                <p class="contract-field__error" id="contract-cvs-recipient-name-error" role="alert"></p>
+                            </div>
+                            <div class="contract-field" data-field="cvsRecipientPhone">
+                                <label class="contract-field__label" for="contract-cvs-recipient-phone">收件人手機號碼</label>
+                                <input class="contract-field__control" type="tel" id="contract-cvs-recipient-phone" name="cvsRecipientPhone" autocomplete="tel" inputmode="tel">
+                                <p class="contract-field__error" id="contract-cvs-recipient-phone-error" role="alert"></p>
+                            </div>
+                            <div class="contract-field" data-field="cvsStoreName">
+                                <label class="contract-field__label" for="contract-cvs-store-name">7-ELEVEN 門市名稱</label>
+                                <input class="contract-field__control" type="text" id="contract-cvs-store-name" name="cvsStoreName" autocomplete="off">
+                                <p class="contract-field__error" id="contract-cvs-store-name-error" role="alert"></p>
+                            </div>
+                            <div class="contract-field" data-field="cvsStoreId">
+                                <label class="contract-field__label" for="contract-cvs-store-id">7-ELEVEN 門市店號</label>
+                                <input class="contract-field__control" type="text" id="contract-cvs-store-id" name="cvsStoreId" autocomplete="off" inputmode="numeric">
+                                <p class="contract-field__error" id="contract-cvs-store-id-error" role="alert"></p>
+                            </div>
+                            <div class="contract-field contract-field--full" data-field="cvsStoreAddress">
+                                <label class="contract-field__label" for="contract-cvs-store-address">7-ELEVEN 門市地址<span class="contract-field__optional">（選填）</span></label>
+                                <input class="contract-field__control" type="text" id="contract-cvs-store-address" name="cvsStoreAddress" autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="contract-shipping-fields contract-form__grid" id="contract-shipping-home" hidden>
+                            <div class="contract-field" data-field="homeRecipientName">
+                                <label class="contract-field__label" for="contract-home-recipient-name">收件人姓名</label>
+                                <input class="contract-field__control" type="text" id="contract-home-recipient-name" name="homeRecipientName" autocomplete="shipping name">
+                                <p class="contract-field__error" id="contract-home-recipient-name-error" role="alert"></p>
+                            </div>
+                            <div class="contract-field" data-field="homeRecipientPhone">
+                                <label class="contract-field__label" for="contract-home-recipient-phone">收件人手機號碼</label>
+                                <input class="contract-field__control" type="tel" id="contract-home-recipient-phone" name="homeRecipientPhone" autocomplete="tel" inputmode="tel">
+                                <p class="contract-field__error" id="contract-home-recipient-phone-error" role="alert"></p>
+                            </div>
+                                <div class="contract-field" data-field="storeName">
+                                    <label class="contract-field__label" for="contract-store-name">
+                                        7-ELEVEN 門市名稱
+                                    </label>
+                                    <input
+                                        class="contract-field__control"
+                                        type="text"
+                                        id="contract-store-name"
+                                        name="storeName"
+                                        placeholder="例：德欣門市"
+                                    >
+                                    <p class="contract-field__error" id="contract-store-name-error" role="alert"></p>
+                                </div>
+                                
+                                <div class="contract-field" data-field="storeCode">
+                                    <label class="contract-field__label" for="contract-store-code">
+                                        7-ELEVEN 門市店號
+                                    </label>
+                                    <input
+                                        class="contract-field__control"
+                                        type="text"
+                                        id="contract-store-code"
+                                        name="storeCode"
+                                        placeholder="例：123456"
+                                    >
+                                    <p class="contract-field__error" id="contract-store-code-error" role="alert"></p>
+                                </div>
+                        </div>
+
+                        <div class="contract-field contract-field--full" data-field="notes">
+                            <label class="contract-field__label" for="contract-notes">備註<span class="contract-field__optional">（選填）</span></label>
+                            <textarea class="contract-field__control contract-field__control--textarea" id="contract-notes" name="notes" rows="4" autocomplete="off"></textarea>
+                        </div>
+
+                        <div class="contract-field contract-field--full contract-field--checkbox" data-field="agree">
+                            <label class="contract-checkbox">
+                                <input type="checkbox" id="contract-agree" name="agree" required>
+                                <span>我已確認方案內容，並同意募資商品為客製及限量製作，付款完成後原則上無法取消或退款。</span>
+                            </label>
+                            <p class="contract-field__error" id="contract-agree-error" role="alert"></p>
+                        </div>
+                        
+                        <button type="submit" class="contract-form__submit lib-btn-interact">
+                            【確認封印契約】
+                        </button>
+                        
+                        </form>
+
+                <aside class="contract-summary" aria-labelledby="contract-summary-title">
+                    <div class="contract-summary__card">
+                        <h3 class="contract-summary__title" id="contract-summary-title">訂單摘要</h3>
+                        <dl class="contract-summary__list">
+                            <div class="contract-summary__row">
+                                <dt>方案名稱</dt>
+                                <dd id="contract-summary-tier">尚未選擇</dd>
+                            </div>
+                            <div class="contract-summary__row">
+                                <dt>方案金額</dt>
+                                <dd id="contract-summary-amount">NT$ 0</dd>
+                            </div>
+                            <div class="contract-summary__row">
+                                <dt>寄送方式</dt>
+                                <dd id="contract-summary-delivery">—</dd>
+                            </div>
+                            <div class="contract-summary__row">
+                                <dt>運費</dt>
+                                <dd id="contract-summary-shipping">NT$ 0</dd>
+                            </div>
+                            <div class="contract-summary__row contract-summary__row--total">
+                                <dt>總金額</dt>
+                                <dd id="contract-summary-total">NT$ 0</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </aside>
+            </div>
+
+            <div class="contract-success" id="contract-success" hidden>
+                <div class="contract-success__step" id="contract-success-step-payment">
+                    <h3 class="contract-success__title" id="contract-success-title" tabindex="-1">館藏建立成功</h3>
+                    <p class="contract-success__subtitle">ARCHIVE REGISTERED</p>
+
+                    <dl class="contract-success__summary">
+                        <div class="contract-success__summary-row">
+                            <dt>館藏編號</dt>
+                            <dd id="contract-success-id"></dd>
+                        </div>
+                        <div class="contract-success__summary-row">
+                            <dt>所選方案</dt>
+                            <dd id="contract-success-plan"></dd>
+                        </div>
+                        <div class="contract-success__summary-row">
+                            <dt>應匯金額</dt>
+                            <dd id="contract-success-amount"></dd>
+                        </div>
+                    </dl>
+
+                    <div class="contract-success__bank" aria-label="匯款資訊">
+                        <p class="contract-success__bank-name">國泰世華銀行</p>
+                        <p class="contract-success__bank-row">銀行代碼：013</p>
+                        <p class="contract-success__bank-row">匯款帳號：699515897341</p>
+                    </div>
+
+                    <p class="contract-success__hint">
+                        請於建立館藏後 48 小時內完成匯款。<br>
+                        完成後請回報匯款資料，由館員進行人工核對。
+                    </p>
+
+                    <button type="button" class="contract-success__seal-btn lib-btn-interact lib-btn-interact--gold" id="contract-seal-complete-btn">【我已完成封印】</button>
+
+                    <div class="contract-seal-report" id="contract-seal-report-panel" hidden>
+                        <h4 class="contract-seal-report__title">完成封印回報</h4>
+                        <form class="contract-seal-report__form" id="contract-payment-form" novalidate>
+                            <div class="contract-field contract-field--full" data-field="paymentArchiveId">
+                                <label class="contract-field__label" for="contract-payment-archive-id">館藏編號</label>
+                                <input class="contract-field__control contract-field__control--readonly" type="text" id="contract-payment-archive-id" name="paymentArchiveId" readonly>
+                            </div>
+                            <div class="contract-field contract-field--full" data-field="paymentDate">
+                                <label class="contract-field__label" for="contract-payment-date">匯款日期</label>
+                                <input class="contract-field__control" type="date" id="contract-payment-date" name="paymentDate" required>
+                                <p class="contract-field__error" id="contract-payment-date-error" role="alert"></p>
+                            </div>
+                            <div class="contract-field contract-field--full" data-field="paymentAmount">
+                                <label class="contract-field__label" for="contract-payment-amount">匯款金額</label>
+                                <input class="contract-field__control" type="number" id="contract-payment-amount" name="paymentAmount" min="1" step="1" inputmode="numeric" required>
+                                <p class="contract-field__error" id="contract-payment-amount-error" role="alert"></p>
+                            </div>
+                            <div class="contract-field contract-field--full" data-field="accountLastFive">
+                                <label class="contract-field__label" for="contract-payment-last-five">匯款帳號末五碼</label>
+                                <input class="contract-field__control" type="text" id="contract-payment-last-five" name="accountLastFive" inputmode="numeric" maxlength="5" autocomplete="off" required>
+                                <p class="contract-field__error" id="contract-payment-last-five-error" role="alert"></p>
+                            </div>
+                            <div class="contract-field contract-field--full" data-field="paymentNote">
+                                <label class="contract-field__label" for="contract-payment-note">備註<span class="contract-field__optional">（選填）</span></label>
+                                <textarea class="contract-field__control contract-field__control--textarea" id="contract-payment-note" name="paymentNote" rows="3" autocomplete="off"></textarea>
+                            </div>
+                            <div class="contract-field contract-field--full contract-field--checkbox" data-field="paymentAgree">
+                                <label class="contract-checkbox">
+                                    <input type="checkbox" id="contract-payment-agree" name="paymentAgree" required>
+                                    <span>我已確認以上匯款資料正確。</span>
+                                </label>
+                                <p class="contract-field__error" id="contract-payment-agree-error" role="alert"></p>
+                            </div>
+                            <p class="contract-seal-report__submit-error" id="contract-payment-submit-error" role="alert" hidden></p>
+                            <button type="submit" class="contract-seal-report__submit lib-btn-interact lib-btn-interact--gold" id="contract-payment-submit">【送出封印回報】</button>
+                        </form>
+                    </div>
+
+                    <div class="contract-seal-report-success" id="contract-seal-report-success" hidden>
+                        <p class="contract-seal-report-success__divider" aria-hidden="true">━━━━━━━━━━━━━━</p>
+                        <h4 class="contract-seal-report-success__title" tabindex="-1">封印回報成功</h4>
+                        <p class="contract-seal-report-success__subtitle">ARCHIVE PENDING</p>
+                        <p class="contract-seal-report-success__divider" aria-hidden="true">━━━━━━━━━━━━━━</p>
+                        <p class="contract-seal-report-success__text">
+                            館員將於 48 小時內<br>
+                            確認封印是否成功。<br><br>
+                            確認完成後<br>
+                            你的館藏將正式收入禁書圖書館。
+                        </p>
+                        <p class="contract-seal-report-success__divider" aria-hidden="true">━━━━━━━━━━━━━━</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="contract-modal" id="contract-modal" hidden>
+        <div class="contract-modal__backdrop" id="contract-modal-backdrop" aria-hidden="true"></div>
+        <div
+            class="contract-modal__panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="contract-modal-title"
+            id="contract-modal-panel"
+        >
+            <h3 class="contract-modal__title" id="contract-modal-title">確認封印契約</h3>
+            <dl class="contract-modal__review" id="contract-modal-review"></dl>
+            <div class="contract-modal__actions">
+                <button type="button" class="contract-modal__back lib-btn-interact" id="contract-modal-back">【返回修改】</button>
+                <button type="button" class="contract-modal__confirm lib-btn-interact lib-btn-interact--gold" id="contract-modal-confirm">【確認送出】</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 頁尾 Footer ==================== -->
+    <footer class="footer" id="footer">
+        <div class="footer__inner">
+            <p class="footer__brand">FORBIDDEN LIBRARY</p>
+            <p class="footer__project">雪薇 Yukibi 2027 生誕募資企劃</p>
+            <p class="footer__archive">
+                館藏紀錄結束。<br>
+                ARCHIVE CLOSED.
+            </p>
+            <blockquote class="footer__quote">
+                「有些故事，不應被遺忘；<br>
+                有些故事，值得被永久收藏。」
+            </blockquote>
+            <nav class="footer__social" aria-label="社群連結">
+                <ul class="footer__social-list">
+                    <li><a href="#" class="footer__social-link">Instagram</a></li>
+                    <li><a href="#" class="footer__social-link">Threads</a></li>
+                    <li><a href="#" class="footer__social-link">YouTube</a></li>
+                    <li><a href="#" class="footer__social-link">Spotify</a></li>
+                </ul>
+            </nav>
+            <p class="footer__copy">© 2027 Yukibi. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- 在 </body> 結束前載入 JavaScript，確保 HTML 元素都已存在 -->
+    <script src="script.js"></script>
+</body>
+
+</html>
