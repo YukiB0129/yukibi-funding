@@ -13,7 +13,7 @@
         goal: 250000,
         supporters: 0,
         heroDaysLeft: 50,
-        endDate: '2026-10-15T23:59:59+08:00'
+    endDate: '2026-10-15T23:59:59+08:00'
     };
 
     const NAV_OFFSET = 72;
