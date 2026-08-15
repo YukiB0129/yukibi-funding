@@ -1913,8 +1913,9 @@ gapText: `尚需 ${formatCurrency(goal.amount - raised)}`
                 }
 
                 return {
+                    ...result,
                     archiveId: returnedArchiveId
-                };
+                  };
             }
 
             return {
@@ -1945,8 +1946,9 @@ gapText: `尚需 ${formatCurrency(goal.amount - raised)}`
         const modalConfirm = document.getElementById('contract-modal-confirm');
         const modalBackdrop = document.getElementById('contract-modal-backdrop');
         const successId = document.getElementById('contract-success-id');
-        const successPlan = document.getElementById('contract-success-plan');
-        const successAmount = document.getElementById('contract-success-amount');
+const successAccessKey = document.getElementById('contract-success-access-key');
+const successPlan = document.getElementById('contract-success-plan');
+const successAmount = document.getElementById('contract-success-amount');
         const successStepPayment = document.getElementById('contract-success-step-payment');
         const sealCompleteBtn = document.getElementById('contract-seal-complete-btn');
         const sealReportPanel = document.getElementById('contract-seal-report-panel');
@@ -2070,6 +2072,7 @@ gapText: `尚需 ${formatCurrency(goal.amount - raised)}`
         let isSubmitting = false;
         let isPaymentSubmitting = false;
         let sealedArchiveId = '';
+        let sealedAccessKey = '';
         let sealedTotalAmount = 0;
         let sealedPlanName = '';
         const modalConfirmDefaultLabel = modalConfirm?.textContent?.trim() || '【確認送出】';
@@ -2489,21 +2492,23 @@ gapText: `尚需 ${formatCurrency(goal.amount - raised)}`
             }
         }
 
-        function showSuccessView(archiveId, totalAmount = 0, planName = '') {
+        function showSuccessView(archiveId, accessKey, totalAmount = 0, planName = '') {
             currentOrder = {
                 archiveId,
                 planName: planName || '',
                 planPrice: totalAmount || 0
             };
             sealedArchiveId = archiveId;
-            sealedTotalAmount = totalAmount;
-            sealedPlanName = planName;
+sealedAccessKey = accessKey;
+sealedTotalAmount = totalAmount;
+sealedPlanName = planName;
 
             if (workspace) workspace.hidden = true;
             if (selectedBanner) selectedBanner.hidden = true;
             if (successView) successView.hidden = false;
             if (successStepPayment) successStepPayment.hidden = false;
             if (successId) successId.textContent = archiveId;
+            if (successAccessKey) successAccessKey.textContent = accessKey || '—';
             if (successPlan) successPlan.textContent = planName || '—';
             if (successAmount) {
                 successAmount.textContent = totalAmount > 0
@@ -2737,7 +2742,12 @@ gapText: `尚需 ${formatCurrency(goal.amount - raised)}`
                 const totalAmount = pendingFormData.total;
                 const planName = pendingFormData.tierLabel;
                 closeModal(false);
-                showSuccessView(result.archiveId, totalAmount, planName);
+                showSuccessView(
+                    result.archiveId,
+                    result.accessKey,
+                    totalAmount,
+                    planName
+                  );
                 resetContractForm();
             } catch (error) {
                 console.error('建立訂單失敗：', error);
@@ -2972,14 +2982,17 @@ gapText: `尚需 ${formatCurrency(goal.amount - raised)}`
         };
     }
 
-    async function fetchArchiveStatus(archiveId) {
+    async function fetchArchiveStatus(archiveId, accessKey) {
         if (!isGoogleScriptUrlConfigured()) {
             throw new Error('目前尚未設定資料接收網址。');
         }
-
+    
         const controller = new AbortController();
-        const timeoutId = window.setTimeout(() => controller.abort(), GOOGLE_SCRIPT_SUBMIT_TIMEOUT_MS);
-
+        const timeoutId = window.setTimeout(
+            () => controller.abort(),
+            GOOGLE_SCRIPT_SUBMIT_TIMEOUT_MS
+        );
+    
         try {
             const response = await fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
@@ -2988,28 +3001,40 @@ gapText: `尚需 ${formatCurrency(goal.amount - raised)}`
                 },
                 body: JSON.stringify({
                     action: 'getArchiveStatus',
-                    archiveId
+                    archiveId,
+                    accessKey
                 }),
                 signal: controller.signal
             });
-
+    
             const result = await response.json();
-
+    
             if (!result.success) {
-                throw new Error(result.message || '查詢失敗，請稍後再試。');
+                throw new Error(
+                    result.message || '館藏編號或閱覽金鑰錯誤。'
+                );
             }
-
+    
             if (!result.archive || typeof result.archive !== 'object') {
                 throw new Error('查詢失敗，請稍後再試。');
             }
-
+    
             return pickPublicArchiveData(result.archive);
+    
         } catch (error) {
-            if (error instanceof Error && error.message && error.name !== 'AbortError' && !(error instanceof TypeError)) {
+            if (
+                error instanceof Error &&
+                error.message &&
+                error.name !== 'AbortError' &&
+                !(error instanceof TypeError)
+            ) {
                 throw error;
             }
-
-            throw new Error('目前無法連線至館藏系統，請稍後再試。');
+    
+            throw new Error(
+                '目前無法連線至館藏系統，請稍後再試。'
+            );
+    
         } finally {
             window.clearTimeout(timeoutId);
         }
@@ -3018,71 +3043,85 @@ gapText: `尚需 ${formatCurrency(goal.amount - raised)}`
     function initArchiveSearch() {
         const section = document.getElementById('archive-search');
         const input = document.getElementById('archive-search-input');
+        const accessKeyInput = document.getElementById('archive-search-access-key');
         const submitBtn = document.getElementById('archive-search-submit');
         const errorEl = document.getElementById('archive-search-error');
         const resultEl = document.getElementById('archive-search-result');
         const resultStatusEl = document.getElementById('archive-search-result-status');
         const resultListEl = document.getElementById('archive-search-result-list');
         const submitDefaultLabel = submitBtn?.textContent?.trim() || '【查詢館藏】';
-
-        if (!section || !input || !submitBtn || section.dataset.archiveSearchBound === 'true') return;
-
+    
+        if (
+            !section ||
+            !input ||
+            !accessKeyInput ||
+            !submitBtn ||
+            section.dataset.archiveSearchBound === 'true'
+        ) return;
+    
         section.dataset.archiveSearchBound = 'true';
-
+    
         let isSearching = false;
-
+    
         function clearInputError() {
             input.classList.remove('archive-search-card__input--error');
+            accessKeyInput.classList.remove('archive-search-card__input--error');
         }
-
+    
         function showSearchError(message) {
             if (!errorEl) return;
-
+    
             errorEl.textContent = message;
             errorEl.hidden = false;
         }
-
+    
         function clearSearchFeedback() {
             if (errorEl) {
                 errorEl.textContent = '';
                 errorEl.hidden = true;
             }
-
+    
             clearInputError();
         }
-
+    
         function clearSearchResult() {
             if (!resultEl) return;
-
+    
             resultEl.hidden = true;
             resultEl.classList.remove('is-visible');
-
+    
             if (resultStatusEl) resultStatusEl.innerHTML = '';
             if (resultListEl) resultListEl.innerHTML = '';
         }
-
+    
         function setSearchButtonState(isLoading) {
             submitBtn.disabled = isLoading;
-            submitBtn.textContent = isLoading ? '【查閱中……】' : submitDefaultLabel;
+            submitBtn.textContent = isLoading
+                ? '【查閱中……】'
+                : submitDefaultLabel;
         }
-
+    
         function renderArchiveResult(archive) {
             if (!resultEl || !resultStatusEl || !resultListEl) return;
-
-            const paymentStatus = getPaymentStatusPresentation(archive.paymentStatus);
+    
+            const paymentStatus = getPaymentStatusPresentation(
+                archive.paymentStatus
+            );
+    
             const statusEnMarkup = paymentStatus.en
                 ? `<p class="archive-search-result__status-en">${escapeHtml(paymentStatus.en)}</p>`
                 : '';
+    
             const statusDescMarkup = paymentStatus.desc
                 ? `<p class="archive-search-result__status-desc">${escapeHtml(paymentStatus.desc)}</p>`
                 : '';
-
+    
             resultStatusEl.innerHTML = `
                 <p class="archive-search-result__status-label">${escapeHtml(paymentStatus.label)}</p>
                 ${statusEnMarkup}
                 ${statusDescMarkup}
             `;
-
+    
             const rows = [
                 ['館藏編號', archive.archiveId || '—'],
                 ['公開署名', archive.publicName || '—'],
@@ -3093,76 +3132,118 @@ gapText: `尚需 ${formatCurrency(goal.amount - raised)}`
                 ['寄送狀態', formatShippingStatusDisplay(archive.shippingStatus)],
                 ['物流編號', formatTrackingNumberDisplay(archive.trackingNumber)]
             ];
-
+    
             resultListEl.innerHTML = rows.map(([label, value]) => `
                 <div class="archive-search-result__row">
                     <dt>${escapeHtml(label)}</dt>
                     <dd>${escapeHtml(value)}</dd>
                 </div>
             `).join('');
-
+    
             resultEl.hidden = false;
             resultEl.classList.remove('is-visible');
+    
             window.requestAnimationFrame(() => {
                 resultEl.classList.add('is-visible');
             });
-
-            const resultTop = resultEl.getBoundingClientRect().top + window.scrollY - NAV_OFFSET;
+    
+            const resultTop =
+                resultEl.getBoundingClientRect().top +
+                window.scrollY -
+                NAV_OFFSET;
+    
             window.scrollTo({
                 top: resultTop,
                 behavior: prefersReducedMotion() ? 'auto' : 'smooth'
             });
         }
-
+    
         async function handleSearch() {
             if (isSearching) return;
-
+    
             clearSearchFeedback();
             clearSearchResult();
-
+    
             const archiveId = input.value.trim().toUpperCase();
+            const accessKey = accessKeyInput.value.trim().toUpperCase();
+    
             input.value = archiveId;
-
+            accessKeyInput.value = accessKey;
+    
             if (!archiveId) {
                 input.classList.add('archive-search-card__input--error');
                 showSearchError('請輸入館藏編號');
                 input.focus();
                 return;
             }
-
+    
+            if (!accessKey) {
+                accessKeyInput.classList.add(
+                    'archive-search-card__input--error'
+                );
+                showSearchError('請輸入閱覽金鑰');
+                accessKeyInput.focus();
+                return;
+            }
+    
             isSearching = true;
             setSearchButtonState(true);
-
+    
             try {
                 if (!isGoogleScriptUrlConfigured()) {
                     showSearchError('目前尚未設定資料接收網址。');
                     return;
                 }
-
-                const archive = await fetchArchiveStatus(archiveId);
+    
+                const archive = await fetchArchiveStatus(
+                    archiveId,
+                    accessKey
+                );
+    
                 renderArchiveResult(archive);
+    
             } catch (error) {
-                const message = error instanceof Error && error.message
-                    ? error.message
-                    : '查詢失敗，請稍後再試。';
+                const message =
+                    error instanceof Error && error.message
+                        ? error.message
+                        : '查詢失敗，請稍後再試。';
+    
                 showSearchError(message);
+    
             } finally {
                 isSearching = false;
                 setSearchButtonState(false);
             }
         }
-
+    
         submitBtn.addEventListener('click', handleSearch);
-
+    
         input.addEventListener('input', () => {
             clearInputError();
+    
             if (errorEl?.textContent) {
                 errorEl.textContent = '';
                 errorEl.hidden = true;
             }
         });
-
+    
+        accessKeyInput.addEventListener('input', () => {
+            clearInputError();
+    
+            if (errorEl?.textContent) {
+                errorEl.textContent = '';
+                errorEl.hidden = true;
+            }
+        });
+    
         input.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                accessKeyInput.focus();
+            }
+        });
+    
+        accessKeyInput.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
                 event.preventDefault();
                 handleSearch();

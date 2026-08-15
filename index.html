@@ -647,22 +647,43 @@
                         <p class="archive-search-card__subtitle">ARCHIVE SEARCH</p>
                     </header>
                     <p class="archive-search-card__desc">
-                        輸入你的館藏編號<br>
+                        輸入館藏編號與閱覽金鑰<br>
                         即可查詢目前收藏狀態
                     </p>
                     <label class="archive-search-card__label" for="archive-search-input">館藏編號</label>
-                    <input
-                        class="archive-search-card__input"
-                        type="text"
-                        id="archive-search-input"
-                        name="archiveSearchId"
-                        placeholder="FL-2027-0001"
-                        autocomplete="off"
-                        spellcheck="false"
-                        inputmode="text"
-                    >
-                    <p class="archive-search-feedback archive-search-feedback--error" id="archive-search-error" role="alert" hidden></p>
-                    <button type="button" class="archive-search-card__submit lib-btn-interact lib-btn-interact--gold" id="archive-search-submit">【查詢館藏】</button>
+<input
+    class="archive-search-card__input"
+    type="text"
+    id="archive-search-input"
+    name="archiveSearchId"
+    placeholder="FL-2027-0001"
+    autocomplete="off"
+    spellcheck="false"
+    inputmode="text"
+>
+
+<label class="archive-search-card__label" for="archive-search-access-key">閱覽金鑰</label>
+<input
+    class="archive-search-card__input"
+    type="text"
+    id="archive-search-access-key"
+    name="archiveSearchAccessKey"
+    placeholder="例如：JRHDP4"
+    autocomplete="off"
+    spellcheck="false"
+    inputmode="text"
+    maxlength="6"
+>
+
+<p class="archive-search-feedback archive-search-feedback--error" id="archive-search-error" role="alert" hidden></p>
+
+<button
+    type="button"
+    class="archive-search-card__submit lib-btn-interact lib-btn-interact--gold"
+    id="archive-search-submit"
+>
+    【查詢館藏】
+</button>
                 </div>
 
                 <article class="archive-search-result" id="archive-search-result" hidden aria-live="polite">
@@ -868,11 +889,17 @@
                         <div class="contract-success__summary-row">
                             <dt>館藏編號</dt>
                             <dd id="contract-success-id"></dd>
-                        </div>
-                        <div class="contract-success__summary-row">
+                          </div>
+                          
+                          <div class="contract-success__summary-row">
+                            <dt>閱覽金鑰</dt>
+                            <dd id="contract-success-access-key"></dd>
+                          </div>
+                          
+                          <div class="contract-success__summary-row">
                             <dt>所選方案</dt>
                             <dd id="contract-success-plan"></dd>
-                        </div>
+                          </div>
                         <div class="contract-success__summary-row">
                             <dt>應匯金額</dt>
                             <dd id="contract-success-amount"></dd>
